@@ -9,7 +9,7 @@
 #include "Matrix.h"
 #include <sstream>
 
-Matrix mkMatrix(const std::initializer_list<std::initializer_list<float>>& rows)
+static Matrix mkMatrix(const std::initializer_list<std::initializer_list<float>>& rows)
 {
     int numRows = rows.size();
     int numCols = rows.begin()->size();
@@ -71,8 +71,12 @@ public:
         }
         for (int ix = 0; ix < a.getRows() * a.getCols(); ++ix)
         {
-            if (a[ix] != _b[ix])
+            // like checking that a[ix] == _b[ix], but uses approximation since we're dealing with floats
+            // see https://github.com/catchorg/Catch2/blob/master/docs/assertions.md for more information
+            if (a[ix] != Approx(_b[ix]))
             {
+                std::cerr << "While checking 2 matrices for equality, at index [" << ix << "], the values " << a[ix]
+                          << " and " << _b[ix] << " aren't equal(approximately)" << std::endl;
                 return false;
             }
         }

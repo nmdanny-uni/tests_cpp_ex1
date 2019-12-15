@@ -4,7 +4,7 @@ project(ex4_tests CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_SOURCE_DIR})
-add_executable(tests test_main.cpp matrix_tests.cpp catch.hpp)
+add_executable(tests test_main.cpp matrix_tests.cpp catch.hpp activation_tests.cpp util.h)
 
 if(MINGW)
     find_program(HAS_LLD lld)
