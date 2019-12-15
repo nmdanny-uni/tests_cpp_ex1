@@ -47,10 +47,20 @@ TEST_CASE("Basic matrix operations", "[matrix]")
         copy_2[0] = 1338;
         CHECK_THAT(copy3, MatrixEquals(m));
 
+        // self-assigning the matrix works and doesn't modify it
+        copy3 = copy3;
+        CHECK_THAT(copy3, MatrixEquals(m));
+
         // ensuring that modifying the copies didn't affect each other
         CHECK(1337 == copy_1(0,0));
         CHECK(1338 == copy_2(0,0));
 
+    }
+
+    SECTION("Newly initialized 2x2 matrix is zeroed")
+    {
+        Matrix m(2, 2);
+        CHECK_THAT(m, MatrixEquals(mkMatrix({{0, 0}, {0, 0}})));
     }
 
     SECTION("Can add 2 matrices")
@@ -106,6 +116,38 @@ TEST_CASE("Basic matrix operations", "[matrix]")
 
         // ensure that the original matrix wasn't modified
         CHECK_THAT(copy, MatrixEquals(a));
+    }
+
+    SECTION("Can multiply square matrix by square matrix")
+    {
+        const Matrix a = mkMatrix({{1,2}, {3,4}});
+        const Matrix b = mkMatrix({{5,6}, {7,8}});
+        const Matrix expectedAb = mkMatrix({
+                                             {19,22}, {43,50}
+        });
+
+        CHECK_THAT(expectedAb, MatrixEquals(a * b));
+
+        // ensure original matrices weren't modified
+        CHECK_THAT(a, MatrixEquals(mkMatrix({{1,2}, {3,4}})));
+        CHECK_THAT(b, MatrixEquals(mkMatrix({{5,6}, {7,8}})));
+    }
+
+    SECTION("Can multiply rectangle matrix by rectangle matrix")
+    {
+        const Matrix a = mkMatrix({{1,2}, {3,4}, {5,6}});
+        const Matrix b = mkMatrix({{1,2,3}, {4,5,6}});
+        const Matrix expectedAb = mkMatrix({
+                                               {9, 12, 15},
+                                               {19, 26, 33},
+                                               {29, 40, 51}
+        });
+
+        CHECK_THAT(expectedAb, MatrixEquals(a * b));
+
+        // ensure original matrices weren't modified
+        CHECK_THAT(a, MatrixEquals(mkMatrix({{1,2}, {3,4}, {5,6}})));
+        CHECK_THAT(b, MatrixEquals(mkMatrix({{1,2,3}, {4,5,6}})));
     }
 }
 
