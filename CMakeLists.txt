@@ -4,12 +4,16 @@ project(ex4_tests CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_SOURCE_DIR})
+
+add_library(mlpnetwork-lib ../main.cpp ../Matrix.cpp ../Matrix.h ../Activation.cpp ../Activation.h
+                           ../Dense.cpp ../Dense.h ../MlpNetwork.h ../Digit.h ../MlpNetwork.cpp)
+target_compile_options(mlpnetwork-lib PRIVATE -Wall -Wextra -Wvla -g -Werror)
+
 add_executable(tests test_main.cpp matrix_tests.cpp catch.hpp activation_tests.cpp util.h)
 
 if(MINGW)
     find_program(HAS_LLD lld)
     if (HAS_LLD)
-        # Use 'lld' linker, "mingw-w64-x86_64-lld", as otherwise linking Catch2 is very slow.
         # see https://github.com/catchorg/Catch2/issues/1205
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
     else()
@@ -18,4 +22,4 @@ if(MINGW)
     endif()
 endif()
 
-target_link_libraries(tests PRIVATE mlpnetwork)
+target_link_libraries(tests PRIVATE mlpnetwork-lib)
