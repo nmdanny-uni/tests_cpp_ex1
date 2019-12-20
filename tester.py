@@ -10,6 +10,8 @@ EXECUTABLE_PATH = Path('../cmake-build-debug/tests/mlpnetwork-executable')
 SCHOOL_SOLUTION = Path('school_solution')
 SCHOOL_OUT = Path("school-out")
 
+ERROR_REGEX = re.compile(r"^Error: .+\n")
+
 if sys.platform == "win32" or sys.platform == "msys":
     EXECUTABLE_PATH = EXECUTABLE_PATH.with_suffix(".exe")
 if sys.platform == "cygwin":
@@ -32,6 +34,7 @@ image_to_result = {
     'im9': (4, 0.999974)
 }
 
+ERROR_FILES = ["random_bytes", "too_long", "too_short"]
 
 def test_configured_correctly():
     assert EXECUTABLE_PATH.exists(), f"Executable should exist at {EXECUTABLE_PATH}"
@@ -52,7 +55,7 @@ def run_on_image(image: str, executable=None):
     return proc.stdout, proc.stderr
 
 def gen_school_output():
-    for image in image_to_result.keys():
+    for image in list(image_to_result.keys()) + ERROR_FILES:
         out, err = run_on_image(image, executable=SCHOOL_SOLUTION)
         with open(SCHOOL_OUT / image, 'w', encoding='utf-8') as sout:
             sout.write(out)
@@ -63,6 +66,7 @@ def test_on_image(image: str):
     expected_digit, expected_prob = image_to_result[image]
     out, err = run_on_image(image)
 
+    print(f"STDOUT: {out}\nSTDERR: {err}\n")
     assert "Image processed:" in out, "There was an error in your program - no digit was output"
     match = RESULT_REGEX.search(out)
     gotten_digit, gotten_prob = match.group(1), match.group(2)
@@ -74,5 +78,21 @@ def test_on_image(image: str):
         expected_out = exp_out_file.read()
         assert expected_out == out, "Your program got the right digit and probability, but output format is wrong"
 
+
+@pytest.mark.parametrize("err_img", ERROR_FILES)
+def test_on_error(err_img: str):
+    out, err = run_on_image(err_img)
+
+    print(f"STDOUT: {out}\nSTDERR: {err}\n")
+    match = ERROR_REGEX.findall(err)
+    assert match is not None, f"Could not find error string in STDERR for invalid image file {err_img}"
+    shouldnt_match = RESULT_REGEX.search(out)
+    assert shouldnt_match is None, f"Program should've terminated after printing error for image file {err_img}"
+
+
 if __name__ == '__main__':
+    if "genschool" in sys.argv:
+        gen_school_output()
+        print("Generated output via school binary")
+        exit(0)
     pytest.main(sys.argv + ["-vvs"])

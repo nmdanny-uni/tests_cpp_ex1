@@ -6,7 +6,7 @@ the school's solution
 
 ## What isn't being tested
 
-- Errors and handling of invalid inputs
+- I probably missed some error cases
 - Matrix::plainPrint
 - Memory leaks while running the entire program(Python tester doesn't use valgrind)
 
