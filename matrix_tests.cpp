@@ -152,13 +152,11 @@ TEST_CASE("Basic matrix operations", "[matrix]")
 
     SECTION("Can vectorize a matrix")
     {
-        const Matrix a = mkMatrix({{1,2}, {3,4}, {5,6}});
+        Matrix a = mkMatrix({{1,2}, {3,4}, {5,6}});
         const Matrix expectedVec = mkMatrix({{1}, {2}, {3}, {4}, {5}, {6}});
 
         CHECK_THAT(expectedVec, MatrixEquals(a.vectorize()));
-
-        // ensure original matrix wasn't modified
-        CHECK_THAT(a, MatrixEquals(mkMatrix({{1,2}, {3,4}, {5,6}})));
+        CHECK_THAT(expectedVec, MatrixEquals(a));
     }
 }
 
