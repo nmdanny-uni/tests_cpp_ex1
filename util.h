@@ -9,6 +9,8 @@
 #include "Matrix.h"
 #include <sstream>
 
+/** Helper function for creating a matrix using brace initialization syntax, 'rows' is basically a list of lists
+ */
 static Matrix mkMatrix(const std::initializer_list<std::initializer_list<float>>& rows)
 {
     int numRows = rows.size();
@@ -33,6 +35,7 @@ static Matrix mkMatrix(const std::initializer_list<std::initializer_list<float>>
 namespace Catch {
     template<>
     struct StringMaker<Matrix> {
+        /** Used for printing a matrix */
         static std::string convert(const Matrix& matrix)
         {
 
@@ -53,7 +56,7 @@ namespace Catch {
     };
 }
 
-
+/** Used for comparing matrices for equality */
 class MatrixMatcher: public Catch::MatcherBase<Matrix>
 {
 private:

@@ -6,12 +6,14 @@ import re
 
 IMAGES_DIR = Path('images')
 PARAMETERS_DIR = Path('parameters')
-EXECUTABLE_PATH = Path('../cmake-build-debug/mlpnetwork')
+EXECUTABLE_PATH = Path('../cmake-build-debug/tests/mlpnetwork-executable')
+SCHOOL_SOLUTION = Path('school_solution')
+SCHOOL_OUT = Path("school-out")
 
 if sys.platform == "win32" or sys.platform == "msys":
     EXECUTABLE_PATH = EXECUTABLE_PATH.with_suffix(".exe")
 if sys.platform == "cygwin":
-    print("Cygwin toolchain isn't supported, try using WSL or MSYS2 MingGW, or better - use an Aquarium PC", file=sys.stderr)
+    print("Cygwin toolchain isn't supported, try using MSYS2 MingGW, or better - use an Aquarium PC", file=sys.stderr)
     exit(1)
 
 PARAMS = [PARAMETERS_DIR / p for p in ["w1", "w2", "w3", "w4", "b1", "b2", "b3", "b4"]]
@@ -39,22 +41,27 @@ def test_configured_correctly():
         assert (IMAGES_DIR/im).exists(), f"Image file {IMAGES_DIR/im} should exist"
 
 
-def run_on_image(image: str):
+def run_on_image(image: str, executable=None):
     image_file = IMAGES_DIR / image
-    args = [EXECUTABLE_PATH, *PARAMS]
-    input = f"{image_file.absolute()}\n"
+    args = [str(arg.resolve()) for arg in [executable or EXECUTABLE_PATH] + PARAMS]
+    input = f"{image_file}\nq\n"
     proc = subprocess.run(args, input=input, universal_newlines=True,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                            )
     return proc.stdout, proc.stderr
 
+def gen_school_output():
+    for image in image_to_result.keys():
+        out, err = run_on_image(image, executable=SCHOOL_SOLUTION)
+        with open(SCHOOL_OUT / image, 'w', encoding='utf-8') as sout:
+            sout.write(out)
+
 
 @pytest.mark.parametrize("image", image_to_result.keys())
 def test_on_image(image: str):
     expected_digit, expected_prob = image_to_result[image]
     out, err = run_on_image(image)
-    print(f"Output of running with image '{image}':\n{out}")
 
     assert "Image processed:" in out, "There was an error in your program - no digit was output"
     match = RESULT_REGEX.search(out)
@@ -63,3 +70,9 @@ def test_on_image(image: str):
     assert expected_digit == int(gotten_digit), "Your program identified the wrong digit"
     assert expected_prob == float(gotten_prob), "Your program got the right digit, but the probability is wrong"
 
+    with open(SCHOOL_OUT / image, 'r', encoding='utf-8') as exp_out_file:
+        expected_out = exp_out_file.read()
+        assert expected_out == out, "Your program got the right digit and probability, but output format is wrong"
+
+if __name__ == '__main__':
+    pytest.main(sys.argv + ["-vvs"])

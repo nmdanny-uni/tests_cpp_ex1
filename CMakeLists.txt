@@ -5,10 +5,13 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_library(mlpnetwork-lib ../main.cpp ../Matrix.cpp ../Matrix.h ../Activation.cpp ../Activation.h
+
+add_library(mlpnetwork-lib ../Matrix.cpp ../Matrix.h ../Activation.cpp ../Activation.h
                            ../Dense.cpp ../Dense.h ../MlpNetwork.h ../Digit.h ../MlpNetwork.cpp)
 target_compile_options(mlpnetwork-lib PRIVATE -Wall -Wextra -Wvla -g -Werror)
 
+add_executable(mlpnetwork-executable ../main.cpp)
+target_link_libraries(mlpnetwork-executable PRIVATE mlpnetwork-lib)
 add_executable(tests test_main.cpp matrix_tests.cpp catch.hpp activation_tests.cpp util.h)
 
 if(MINGW)
@@ -16,9 +19,6 @@ if(MINGW)
     if (HAS_LLD)
         # see https://github.com/catchorg/Catch2/issues/1205
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-    else()
-        message(WARNING "You're compiling for Windows via MinGW, but don't have the LLD linker, linking the tests is going to"
-                "be very slow. If you're using MSYS2+MinGW, try doing 'pacman -S mingw-w64-x86_64-lld' at the 'MSYS2 MinGW 64-bit' shell")
     endif()
 endif()
 
