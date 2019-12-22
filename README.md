@@ -83,5 +83,7 @@ configuration, so it should look like this: ![](instructions/cpp_tests.png)
 Finally, add a `Python tests > pytest` configuration, so it should look like this: ![](instructions/python_tests.png)
 
 ## Running
+First, compile the entire C++ project by doing `Build | Build Project`, this is necessary for the Python tester(it runs an executable called `mlpnetwork-executable` under `cmake-build-debug/tests`, different from the one built by the root project, it is built by the `tests` subdirectory/sub-project, which should happen automatically when building the entire project)
+
 Click `Run... | CPP Tester` or `Run... | pytest for tester` to run the C++ tester or Python tester, respectively.
 Note that you can also run the CPP Tester with CLion's debugger or with Valgrind.
