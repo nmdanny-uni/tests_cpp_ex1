@@ -49,7 +49,7 @@ you can easily do so by running the following commands in the terminal:
 
 ```shell script
 cd MY_PROJECT_FOLDER
-git clone https://github.cs.huji.ac.il/danielkerbel/MY_PROJECT_FOLDER tests
+git clone https://github.cs.huji.ac.il/danielkerbel/tests_cpp_ex1 tests
 ```
 
 Afterwards, your project root directory should look more or less like this:
